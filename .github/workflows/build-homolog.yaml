@@ -39,7 +39,6 @@ jobs:
   merge-branch:
     if: contains(github.event.issue.labels.*.name, 'build-homolog')
     name: Build Homolog
-    id: merge-branch
     needs: [ setup ]
     runs-on: ubuntu-latest
     steps:
@@ -49,6 +48,7 @@ jobs:
           fetch-depth: 0
 
       - name: Atualizar branch homolog
+        id: merge-branch
         run: |
           @commando=' 
           git config --global user.email "robot@github.com"
@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo gh run view --job {{needs.merge-branch.job.id}} --log | grep error
+          echo ${{ github.job }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ github.event.issue.html_url }}

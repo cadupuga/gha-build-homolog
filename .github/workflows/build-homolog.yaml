@@ -39,6 +39,7 @@ jobs:
   merge-branch:
     if: contains(github.event.issue.labels.*.name, 'build-homolog')
     name: Build Homolog
+    id: merge-branch
     needs: [ setup ]
     runs-on: ubuntu-latest
     steps:
@@ -97,10 +98,12 @@ jobs:
           git commit -m "Atualizando homolog com $nova_lista"
           git push --force origin homolog
 
-  comment:
+  add-comment-error:
+    needs: [ merge-branch ]
     runs-on: ubuntu-latest
     steps:
-      - run: gh issue comment $ISSUE --body "Thank you for opening this issue!"
+      - run: |
+          echo gh run view --job {{needs.merge-branch.job.id}} --log | grep error
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ github.event.issue.html_url }}

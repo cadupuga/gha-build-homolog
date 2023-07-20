@@ -5,11 +5,11 @@ on:
     types: opened
 
 concurrency:
-  group: build-debug
+  group: build-homolog
 
 jobs:
   setup:
-    if: contains(github.event.issue.labels.*.name, 'build-debug')
+    if: contains(github.event.issue.labels.*.name, 'build-homolog')
     name: Setup
     runs-on: ubuntu-latest
     outputs:

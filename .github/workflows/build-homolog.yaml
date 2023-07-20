@@ -129,4 +129,4 @@ jobs:
               You can view the error accessing the [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
         - name: Log Error
           run: |
-            echo ${{ github.job }}
+            echo ${{ needs.merge-branch.id }}

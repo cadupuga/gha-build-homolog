@@ -76,10 +76,12 @@ jobs:
               branch_merged=$?
             fi
             if [ $branch_exists -eq 0 ] && [ $branch_merged -ne 0 ]; then
+              echo "Irá mergear branch: $branch"
               set -e
               git rebase develop
               git checkout homolog
               git merge $branch --no-edit
+              echo "Mergeou branch: $branch"
             else
               set -e
               # remove branch from list

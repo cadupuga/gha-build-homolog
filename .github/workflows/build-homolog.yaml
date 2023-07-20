@@ -98,16 +98,6 @@ jobs:
           git commit -m "Atualizando homolog com $nova_lista"
           git push --force origin homolog
 
-  add-comment-error:
-    needs: [ merge-branch ]
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo ${{ github.job }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE: ${{ github.event.issue.html_url }}
-
   close-issue-with-success:
     if: success() && !cancelled()
     name: Close Issue
@@ -137,3 +127,6 @@ jobs:
               ## Error :sob:
               Automation failed.
               You can view the error accessing the [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+        - name: Log Error
+          run: |
+            echo ${{ github.job }}

@@ -49,6 +49,7 @@ jobs:
 
       - name: Atualizar branch homolog
         run: |
+          @commando=' 
           git config --global user.email "robot@github.com"
           git config --global user.name "Homolog Robot"
           git fetch --all
@@ -95,6 +96,14 @@ jobs:
           git add .
           git commit -m "Atualizando homolog com $nova_lista"
           git push --force origin homolog
+
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh issue comment $ISSUE --body "Thank you for opening this issue!"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.html_url }}
 
   close-issue-with-success:
     if: success() && !cancelled()

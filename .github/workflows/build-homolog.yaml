@@ -49,8 +49,7 @@ jobs:
 
       - name: Atualizar branch homolog
         id: merge-branch
-        run: |
-          @commando=' 
+        run: |          
           git config --global user.email "robot@github.com"
           git config --global user.name "Homolog Robot"
           git fetch --all
@@ -127,6 +126,3 @@ jobs:
               ## Error :sob:
               Automation failed.
               You can view the error accessing the [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-        - name: Log Error
-          run: |
-            echo ${{ needs.merge-branch.id }}

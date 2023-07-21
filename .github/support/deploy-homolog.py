@@ -49,7 +49,7 @@ try:
     if command == 'get-branches':
         currentList = payload
         mergeList = sys.argv[3];
-        print(getBranches(currentList, mergeList))
+        print('\n'.join(getBranches(currentList, mergeList)))
         exit()
 
     print('["invalid-command"]')

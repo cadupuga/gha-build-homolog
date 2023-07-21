@@ -27,7 +27,7 @@ jobs:
       - name: Report
         if: failure()
         run: |
-          gh run view --repo $REPO
+          gh run view --log --repo $REPO
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OWNER: ${{ github.repository_owner }}

@@ -62,10 +62,8 @@ jobs:
           if [[ -f homolog-branches ]]; then
             lista_branches=$(cat homolog-branches)
           fi;
-                    
-          echo `python3 .github/support/deploy-homolog.py "getBranches" "$lista_branches" "${{ needs.setup.outputs.branches }}"`
-          lista_branches=`python3 .github/support/deploy-homolog.py "getBranches" "$lista_branches" "${{ needs.setup.outputs.branches }}"`
-          echo $lista_branches;
+                                                  
+          echo ${{ needs.setup.outputs.branches }};
           exit 0;
                        
           while read -r branch; do

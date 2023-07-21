@@ -73,7 +73,10 @@ jobs:
             if [ $branch_exists -eq 0 ]; then
               git checkout $branch
               git log --pretty=format:"%h" develop | grep `git log --pretty=format:"%h" -1 $branch` &> /dev/null
-              branch_merged=$?
+              branch_merged=$?            
+            else
+              echo "DEBUG: $branch não existe"
+              exit 1
             fi
             if [ $branch_exists -eq 0 ] && [ $branch_merged -ne 0 ]; then
               set -e

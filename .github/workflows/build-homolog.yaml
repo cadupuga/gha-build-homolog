@@ -48,13 +48,12 @@ jobs:
           fetch-depth: 0
 
       - name: Atualizar branch homolog
-        id: merge-branch
-        run: |          
+        run: |
           git config --global user.email "robot@github.com"
           git config --global user.name "Homolog Robot"
           git fetch --all
           git checkout homolog
-          lista_branches=''          
+          lista_branches=''
           if [[ -f homolog-branches ]]; then
             lista_branches=$(cat homolog-branches)
           fi;          
@@ -77,15 +76,12 @@ jobs:
               branch_merged=$?
             fi
             if [ $branch_exists -eq 0 ] && [ $branch_merged -ne 0 ]; then
-              echo "Irá mergear branch: $branch"
               set -e
               git rebase develop
               git checkout homolog
               git merge $branch --no-edit
-              echo "Mergeou branch: $branch"
             else
               set -e
-              # remove branch from list
               nova_lista="${nova_lista//$branch/}"
             fi
           done <<< "$lista_branches"
@@ -113,16 +109,16 @@ jobs:
             Automation completed.
 
   close-issue-with-error:
-      if: failure() && !cancelled()
-      name: Close Issue
-      needs: [ merge-branch ]
-      runs-on: ubuntu-latest
-      steps:
-        - name: Close issue with failure
-          uses: peter-evans/close-issue@v2
-          with:
-            issue-number: ${{ github.event.issue.number }}
-            comment: |
-              ## Error :sob:
-              Automation failed.
-              You can view the error accessing the [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+    if: failure() && !cancelled()
+    name: Close Issue
+    needs: [ merge-branch ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close issue with failure
+        uses: peter-evans/close-issue@v2
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          comment: |
+            ## Error :sob:
+            Automation failed.
+            You can view the error accessing the [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).

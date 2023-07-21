@@ -43,11 +43,6 @@ try:
     currentList = sys.argv[2]
     #mergeList = sys.argv[]
 
-    print('ENTROU')
-    print(command)
-    print(currentList)
-    print('FIM')
-
     if command == 'parse-branches':
         print('\n'.join(parseBranches(currentList)))
         exit()

@@ -16,6 +16,9 @@ def parseBranches(payload):
     return [branch.strip() for branch in branches]
 
 def getBranches(currentList, mergeList):
+    print('currentList = ', currentList)
+    print('mergeList = ', mergeList)
+
     currentList = currentList.split()
 
     # Strip matches by end line character and get an array of branches

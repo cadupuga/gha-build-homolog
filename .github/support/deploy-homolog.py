@@ -39,13 +39,16 @@ def getBranches(currentList, mergeList):
     return currentList;
 
 try:
-    command = sys.argv[1]
-    currentList = sys.argv[2]
+    command = sys.argv[0]
+    currentList = sys.argv[1]
+    #mergeList = sys.argv[]
 
+    print('ENTROU')
     print(command)
     print(currentList)
+    print('FIM')
     exit();
-    #mergeList = sys.argv[3]
+
 
     if command == 'parse-branches':
         print('\n'.join(parseBranches(currentList)))

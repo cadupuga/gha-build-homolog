@@ -25,6 +25,7 @@ jobs:
           echo "ERROS: ${{ steps.main.outputs.error }}"
 
       - name: Report
+        working-directory: ${{ github.workspace }}
         if: failure()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

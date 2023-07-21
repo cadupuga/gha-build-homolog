@@ -25,11 +25,10 @@ jobs:
           echo "ERROS: ${{ steps.main.outputs.error }}"
 
       - name: Report
-        working-directory: ${{ github.workspace }}
         if: failure()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE: ${{ github.event.issue.html_url }}
-          REPO: ${{ github.event.repository.name }}
         run: |
           gh run view ${{ github.run_id }} --log
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}

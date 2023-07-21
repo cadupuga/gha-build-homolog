@@ -40,16 +40,10 @@ def getBranches(currentList, mergeList):
 
 try:
     command = sys.argv[1]
-    currentList = sys.argv[2]
-    #mergeList = sys.argv[]
+    payload = sys.argv[2]
 
     if command == 'parse-branches':
-        print('entrou parse-branches')
-        print('\n'.join(parseBranches(currentList)))
-        exit()
-
-    if command == 'get-branches':
-        print(getBranches(currentList, mergeList))
+        print('\n'.join(parseBranches(payload)))
         exit()
 
     print('["invalid-command"]')

@@ -62,7 +62,10 @@ jobs:
           if [[ -f homolog-branches ]]; then
             lista_branches=$(cat homolog-branches)
           fi;
-
+          
+          lista_branches=values=`python3 .github/support/deploy-homolog.py "getBranches" $lista_branches ${{ needs.setup.outputs.branches }}
+          echo $lista_branches;
+                       
           while read -r branch; do
             set +e
             git ls-remote --exit-code --heads origin $branch &> /dev/null

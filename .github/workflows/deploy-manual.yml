@@ -27,6 +27,7 @@ jobs:
       - name: Report
         if: failure()
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.html_url }}
         run: |
           gh run view ${{ github.run_id }} --log | grep error

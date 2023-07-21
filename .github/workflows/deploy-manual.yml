@@ -24,10 +24,11 @@ jobs:
         run: |
           echo "ERROS: ${{ steps.main.outputs.error }}"
 
-      - name: Report
-        if: failure()
-        run: |
+  report:
+    if: failure()
+    needs: [ run ]
+    run: |
           gh run view ${{ github.run_id }} --log --repo $REPO
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.server_url }}/${{ github.repository }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.server_url }}/${{ github.repository }}

@@ -108,7 +108,7 @@ jobs:
           issue-number: ${{ github.event.issue.number }}
           comment: |
             ## Finish :rocket:
-            Branches updated: {{ needs.setup.outputs.branches }}
+            Branches updated: ${{ needs.setup.outputs.branches }}
             Automation completed.
 
   close-issue-with-error:

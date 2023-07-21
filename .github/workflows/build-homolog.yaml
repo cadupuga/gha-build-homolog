@@ -99,7 +99,7 @@ jobs:
   close-issue-with-success:
     if: success() && !cancelled()
     name: Close Issue
-    needs: [ merge-branch ]
+    needs: [ setup, merge-branch ]
     runs-on: ubuntu-latest
     steps:
       - name: Close issue with success
@@ -108,7 +108,7 @@ jobs:
           issue-number: ${{ github.event.issue.number }}
           comment: |
             ## Finish :rocket:
-            Branches updated: ${{ steps.branches.outputs.values }}
+            Branches updated: {{ needs.setup.outputs.branches }}
             Automation completed.
 
   close-issue-with-error:

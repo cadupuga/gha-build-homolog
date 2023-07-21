@@ -44,6 +44,7 @@ try:
     #mergeList = sys.argv[]
 
     if command == 'parse-branches':
+        print('entrou parse-branches')
         print('\n'.join(parseBranches(currentList)))
         exit()
 

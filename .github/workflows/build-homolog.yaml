@@ -61,11 +61,8 @@ jobs:
           lista_branches=''
           if [[ -f homolog-branches ]]; then
             lista_branches=$(cat homolog-branches)
-          fi;
-                                                  
-          echo ${{ needs.setup.outputs.branches }};
-          exit 0;
-                       
+          fi;                                                  
+          echo ${{ needs.setup.outputs.branches }};                                 
           while read -r branch; do
             set +e
             git ls-remote --exit-code --heads origin $branch &> /dev/null

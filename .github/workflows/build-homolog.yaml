@@ -62,7 +62,8 @@ jobs:
           if [[ -f homolog-branches ]]; then
             lista_branches=$(cat homolog-branches)
           fi;                                                            
-          echo "Vai executar get-branches"                 
+          echo "Vai executar get-branches"
+          echo .github/support/deploy-homolog.py
           novas_branchs=`python3 .github/support/deploy-homolog.py "get-branches" "$lista_branches" "${{ needs.setup.outputs.branches }}"`
           echo "NOVAS BRANCHS: $novas_branchs"                                           
           while read -r branch; do

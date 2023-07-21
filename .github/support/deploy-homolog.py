@@ -36,11 +36,7 @@ def getBranches(currentList, mergeList):
         if branch in currentList:
             currentList.remove(branch)
 
-    # return object containing currentList and deleteBranches
-    return {
-        'currentList': currentList,
-        'deleteBranches': deleteBranches
-    }
+    return currentList;
 
 try:
     command = sys.argv[1]

@@ -30,5 +30,4 @@ jobs:
           gh run view ${{ github.run_id }} --log --repo $REPO
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
+          REPO: ${{ github.server_url }}/${{ github.repository_owner }}/${{ github.repository }}

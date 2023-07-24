@@ -7,6 +7,10 @@ name: Deploy to production
 on:
   workflow_dispatch:  # Permite a ativação manual do workflow
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 concurrency:
   group: deploy-production
 
@@ -30,15 +34,19 @@ jobs:
   push_to_registry:
     needs: [ setup ]
     name: Push Docker image to Docker Hub
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-      - name: Check out the repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -53,7 +61,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: imagem_teste
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       # - name: Deploy to production
@@ -64,31 +72,31 @@ jobs:
       #     echo "$result" >> $GITHUB_OUTPUT
       #     echo "EOF" >> $GITHUB_OUTPUT
 
-#      - name: Close issue with failure
-#        uses: peter-evans/close-issue@v2
-#        if: failure() && !cancelled()
-#        with:
-#          issue-number: ${{ github.event.issue.number }}
-#          comment: |
-#            ## Deploy to production failed. :sob:
-#
-#            Errors ocurred during automation:
-#            - ${{ steps.deploy.outputs.result }}
-#
-#            You can view all logs acessing [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+      # - name: Close issue with failure
+      #   uses: peter-evans/close-issue@v2
+      #   if: failure() && !cancelled()
+      #   with:
+      #     issue-number: ${{ github.event.issue.number }}
+      #     comment: |
+      #       ## Deploy to production failed. :sob:
 
-#  close-issue-with-success:
-#    if: success() && !cancelled()
-#    name: Close Issue
-#    needs: [ build ]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Close issue with success
-#        uses: peter-evans/close-issue@v2
-#        with:
-#          issue-number: ${{ github.event.issue.number }}
-#          comment: |
-#            ## Deploy to production successfully :rocket:
-#
-#            Your awesome application now is live and public.
-#            Enjoy!
+      #       Errors ocurred during automation:
+      #       - ${{ steps.deploy.outputs.result }}
+
+      #       You can view all logs acessing [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+  # close-issue-with-success:
+  #   if: success() && !cancelled()
+  #   name: Close Issue
+  #   needs: [ setup ]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Close issue with success
+  #       uses: peter-evans/close-issue@v2
+  #       with:
+  #         issue-number: ${{ github.event.issue.number }}
+  #         comment: |
+  #           ## Deploy to production successfully :rocket:
+
+  #           Your awesome application now is live and public.
+  #           Enjoy!

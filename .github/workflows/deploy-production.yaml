@@ -64,31 +64,31 @@ jobs:
       #     echo "$result" >> $GITHUB_OUTPUT
       #     echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Close issue with failure
-        uses: peter-evans/close-issue@v2
-        if: failure() && !cancelled()
-        with:
-          issue-number: ${{ github.event.issue.number }}
-          comment: |
-            ## Deploy to production failed. :sob:
+#      - name: Close issue with failure
+#        uses: peter-evans/close-issue@v2
+#        if: failure() && !cancelled()
+#        with:
+#          issue-number: ${{ github.event.issue.number }}
+#          comment: |
+#            ## Deploy to production failed. :sob:
+#
+#            Errors ocurred during automation:
+#            - ${{ steps.deploy.outputs.result }}
+#
+#            You can view all logs acessing [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
 
-            Errors ocurred during automation:
-            - ${{ steps.deploy.outputs.result }}
-
-            You can view all logs acessing [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-
-  close-issue-with-success:
-    if: success() && !cancelled()
-    name: Close Issue
-    needs: [ build ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Close issue with success
-        uses: peter-evans/close-issue@v2
-        with:
-          issue-number: ${{ github.event.issue.number }}
-          comment: |
-            ## Deploy to production successfully :rocket:
-
-            Your awesome application now is live and public.
-            Enjoy!
+#  close-issue-with-success:
+#    if: success() && !cancelled()
+#    name: Close Issue
+#    needs: [ build ]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Close issue with success
+#        uses: peter-evans/close-issue@v2
+#        with:
+#          issue-number: ${{ github.event.issue.number }}
+#          comment: |
+#            ## Deploy to production successfully :rocket:
+#
+#            Your awesome application now is live and public.
+#            Enjoy!

@@ -22,75 +22,128 @@ jobs:
           body: |
             Action link [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-      - name: Checkout do repositório
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Obtém a branch a ser mergeada
-        id: branches
-        run: |
-          values=`python3 .github/support/deploy-homolog.py "parse-branches" "${{ github.event.issue.body }}"`
-          echo $values
-          echo "values<<EOF" >> $GITHUB_OUTPUT
-          echo "$values" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-  merge-branch:
-    if: contains(github.event.issue.labels.*.name, 'build-homolog')
-    name: Build Homolog
+  branches-to-merge:
     needs: [ setup ]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        branch_name: ${{ fromJSON( needs.setup.outputs.branches ) }}
-      fail-fast: true
-      max-parallel: 1
+    name: Get branches to merge
+    outputs:
+      branch_list: ${{ steps.list.outputs.value }}
     steps:
-      - name: Checkout do repositório
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Atualizar branch homolog
+      - name: Get branches from issue
+        id: list
+        run: |
+          branchList=$(python3 .github/support/deploy-homolog.py "parse-branches" "${{ github.event.issue.body }}")
+          echo $branchList
+          echo "value<<EOF" >> $GITHUB_OUTPUT
+          echo "$branchList" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+  validate-branches:
+    if: contains(github.event.issue.labels.*.name, 'build-homolog')
+    runs-on: ubuntu-latest
+    name: Validate branches to merge
+    needs: [ branches-to-merge ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Validate branches
         run: |
           git config --global user.email "robot@github.com"
           git config --global user.name "Homolog Robot"
-          git fetch --all
-          git checkout homolog
-          lista_branches=''
-          if [[ -f homolog-branches ]]; then
-            lista_branches=$(cat homolog-branches)
-          fi;
-          git checkout develop
-          git branch -D homolog
-          git checkout -b homolog develop
-          if ! echo "$lista_branches" | grep -qF "${{ matrix.branch_name }}"; then
-            lista_branches=`echo -e "$lista_branches\n${{ matrix.branch_name }}"`
-          fi
-          nova_lista=$lista_branches
+          git fetch --all &> /dev/null
           while read -r branch; do
-            git checkout $branch
             set +e
-            git log --pretty=format:"%h" develop | grep `git log --pretty=format:"%h" -1 $branch` &> /dev/null
-            if [ $? -eq 0 ]; then
+            git ls-remote --exit-code --heads origin $branch &> /dev/null
+            if [[ "$?" != "0" ]]; then
+              echo "Branch não existe: '$branch'"
+              echo "error=Branch não existe: '$branch'" >> $GITHUB_OUTPUT
               set -e
-              nova_lista="${nova_lista//$branch/}"
-              echo "DEBUG: Branch $branch removida de homolog"
-              echo "DEBUG: Lista atualizada: $nova_lista"
-            else
-              echo "DEBUG: Branch $branch mantida em homolog"
-              set -e
-              git rebase develop
-              git checkout homolog
-              git merge $branch --no-edit
+              exit 1
             fi
-          done <<< "$lista_branches"
-          echo "Preparando homolog"
+          done <<< "${{ needs.branches-to-merge.outputs.branch_list }}"
+
+      - name: Close issue with failure
+        uses: peter-evans/close-issue@v2
+        if: failure() && !cancelled()
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          comment: |
+            ## Automation failed. :sob:
+
+            Errors ocurred during automation:
+            - ${{ steps.validate-branches.outputs.error }}
+
+            You can view all logs acessing [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+  build:
+    if: contains(github.event.issue.labels.*.name, 'build-homolog')
+    name: Build Homolog
+    needs: [ validate-branches ]
+    runs-on: ubuntu-latest
+    outputs:
+      error_message: ${{ steps.update-homolog.outputs.error }}
+      branch_list: ${{ steps.update-homolog.outputs.branch_list }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Update homolog branch
+        id: update-homolog
+        run: |
+          git checkout homolog &> /dev/null
+          currentBranches=`cat homolog-branches`
+
+          git checkout main &> /dev/null
+          homologBranches=$(python3 .github/support/deploy-homolog.py "get-branches" "$currentBranches" "${{ github.event.issue.body }}")
+
+          set +e
+          output=`bash .github/support/deploy-environment.sh "$homologBranches"`
+          result=$?
+          echo "error='$output'" >> $GITHUB_OUTPUT
+
           git checkout homolog
-          echo "DEBUG: Atualização da lista: $nova_lista"
-          echo $nova_lista | tr ' ' '\n' > homolog-branches
-          echo "Atualizando lista"
-          git add .
-          git commit -m "Atualizando homolog com $nova_lista"
-          git push --force origin homolog
+          branch_list=$(cat homolog-branches)
+          echo "branch_list<<EOF" >> $GITHUB_OUTPUT
+          echo "$branch_list" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          exit $result
+
+      - name: Close issue with failure
+        uses: peter-evans/close-issue@v2
+        if: failure() && !cancelled()
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          comment: |
+            ## Automation failed. :sob:
+
+            Errors ocurred during automation:
+            - ${{ steps.update-homolog.outputs.error }}
+
+            You can view all logs acessing [action log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+  close-issue-with-success:
+    if: success() && !cancelled()
+    name: Close Issue
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close issue with success
+        uses: peter-evans/close-issue@v2
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          comment: |
+            ## Update completed :rocket:
+
+            Branches in homolog
+            - ${{ needs.build.outputs.branch_list }}

@@ -5,25 +5,20 @@ on:
     branches:
       - develop
 
+concurrency:
+  group: build-homolog
+
 jobs:
   update-branch:
     name: Update Develop
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do repositório
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Config git
-        run: |
-          git config --global user.email "robot@github.com"
-          git config --global user.name "Homolog Robot"
-
       - name: Rebase branch
         run: |
-          git fetch --all
-          git checkout homolog
-          git rebase develop
-          git push --force origin homolog
-
+          git checkout homolog &> /dev/null
+          bash .github/support/deploy-environment.sh "`cat homolog-branches`"

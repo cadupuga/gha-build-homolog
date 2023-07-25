@@ -85,7 +85,7 @@ jobs:
       - name: Deploy to production
         id: deploy
         run: |
-          result=`curl -XGET https://api.render.com/deploy/srv-civc57tgkuvoig9m1l4g?key=ohQT4HLHbfY`
+          result=`curl -XGET https://api.render.com/deploy/srv-civcbediuiedpv77plt0?key=5Mf7YoZ2gfg`
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$result" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
